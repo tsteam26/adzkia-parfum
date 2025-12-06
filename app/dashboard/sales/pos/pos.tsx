@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Product } from "@/lib/types";
 import { SalesClient } from "./sales-client";
-import { createTransaction } from "./actions";
+import { createTransaction } from "../actions";
 import { toast } from "sonner";
 
 export default function PointOfSale() {

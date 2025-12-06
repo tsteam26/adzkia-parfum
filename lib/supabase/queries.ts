@@ -97,6 +97,7 @@ export async function getTransactions() {
       created_at,
       total_amount,
       user_id,
+      payment_method,
       transaction_items (
         volume_ml,
         subtotal,

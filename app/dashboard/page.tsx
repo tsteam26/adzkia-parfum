@@ -8,19 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { TrendingUp } from "lucide-react";
 import { TopSellingProducts } from "@/components/top-selling-products";
 
-export default async function DashboardPage() {
-  // Check if user is authenticated
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    // Redirect to login if user is not authenticated
-    redirect("/auth/login");
-  }
-
+async function SalesChartContent() {
   let salesTrendData: { name: string; total: number }[] = [];
 
   try {
@@ -30,6 +18,10 @@ export default async function DashboardPage() {
     salesTrendData = [];
   }
 
+  return <SalesChart data={salesTrendData} />;
+}
+
+async function DashboardContent() {
   return (
     <div className="container mx-auto py-4 md:py-8 px-4 md:px-6 space-y-6 md:space-y-8 animate-fade-in">
       {/* Header */}
@@ -73,7 +65,7 @@ export default async function DashboardPage() {
             <Suspense fallback={
               <div className="h-64 md:h-80 rounded-lg bg-muted animate-pulse" />
             }>
-              <SalesChart data={salesTrendData} />
+              <SalesChartContent />
             </Suspense>
           </CardContent>
         </Card>
@@ -86,5 +78,34 @@ export default async function DashboardPage() {
         </Suspense>
       </div>
     </div>
+  );
+}
+
+export default async function DashboardPage() {
+  // Check if user is authenticated
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    // Redirect to login if user is not authenticated
+    redirect("/auth/login");
+  }
+
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-4 md:py-8 px-4 md:px-6">
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="h-32 w-32 mx-auto rounded-full bg-muted animate-pulse mb-4" />
+            <p className="text-muted-foreground">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }

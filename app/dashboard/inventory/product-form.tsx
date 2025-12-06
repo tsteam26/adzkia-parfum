@@ -16,12 +16,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Product } from "@/lib/types";
 
-// Define the form schema with coercion - should match the action schema
+// Define the form schema - should match the action schema
 const formSchema = z.object({
   name: z.string().min(2, "Nama produk minimal 2 karakter."),
-  stock_ml: z.coerce.number().min(0, "Stok tidak boleh negatif."),
-  cost_price_per_ml: z.coerce.number().min(0, "Harga modal tidak boleh negatif."),
-  selling_price_per_ml: z.coerce.number().min(0, "Harga jual tidak boleh negatif."),
+  stock_ml: z.number().min(0, "Stok tidak boleh negatif."),
+  cost_price_per_ml: z.number().min(0, "Harga modal tidak boleh negatif."),
+  selling_price_per_ml: z.number().min(0, "Harga jual tidak boleh negatif."),
 });
 
 export type ProductFormValues = z.infer<typeof formSchema>;
@@ -48,9 +48,7 @@ export function ProductForm({
   });
 
   const onSubmitHandler = (data: ProductFormValues) => {
-    // Parse data with the schema to apply coercion
-    const parsedData = formSchema.parse(data);
-    onSubmit(parsedData);
+    onSubmit(data);
   };
 
   return (
