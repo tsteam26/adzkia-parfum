@@ -354,18 +354,21 @@ export function CustomersClient() {
                                 <Label htmlFor="total_purchases" className="text-xs md:text-sm font-semibold">Jumlah Pembelian</Label>
                                 <Input
                                     id="total_purchases"
-                                    type="number"
+                                    type="text"
                                     inputMode="numeric"
-                                    placeholder="0"
+                                    placeholder=""
                                     value={formData.total_purchases}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            total_purchases: e.target.value === "" ? "" : e.target.value,
-                                        })
-                                    }
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        // Hanya izinkan angka
+                                        if (val === "" || /^\d+$/.test(val)) {
+                                            setFormData({
+                                                ...formData,
+                                                total_purchases: val,
+                                            });
+                                        }
+                                    }}
                                     className="h-9 md:h-10 text-sm"
-                                    min="0"
                                 />
                             </div>
                         </div>
