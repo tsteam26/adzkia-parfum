@@ -16,3 +16,13 @@ export type TransactionWithDetails = {
   payment_method: string;
   transaction_items: Array<any>; // Using any to handle the complex nested structure from Supabase
 };
+
+export type Customer = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  user_id?: string;
+  name: string;
+  address: string;
+  total_purchases: number;
+};

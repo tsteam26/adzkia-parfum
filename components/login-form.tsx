@@ -28,11 +28,11 @@ export function LoginForm({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -41,7 +41,24 @@ export function LoginForm({
       // Update this route to redirect to an authenticated route. The user already has an active session.
       router.push("/protected");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      console.error("Login error:", error);
+
+      // Check if it's an environment variable error
+      if (error instanceof Error) {
+        if (error.message.includes("NEXT_PUBLIC_SUPABASE")) {
+          setError(
+            "Konfigurasi sistem tidak lengkap. Silakan hubungi administrator. (Environment variables tidak terkonfigurasi)"
+          );
+        } else if (error.message.includes("Invalid login credentials")) {
+          setError("Email atau password salah. Silakan coba lagi.");
+        } else if (error.message.includes("Email not confirmed")) {
+          setError("Email belum dikonfirmasi. Silakan cek inbox email Anda.");
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setError("Terjadi kesalahan. Silakan coba lagi.");
+      }
     } finally {
       setIsLoading(false);
     }

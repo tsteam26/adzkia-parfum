@@ -14,7 +14,7 @@ interface SalesClientProps {
 
 export function SalesClient({ products, createTransaction }: SalesClientProps) {
   const [isPending, startTransition] = useTransition();
-  const { items: cartItems, clearCart, getCartTotal } = useCartStore();
+  const { items: cartItems, clearCart, getFinalTotal } = useCartStore();
 
   const handleCheckout = () => {
     if (cartItems.length === 0) {
@@ -22,7 +22,7 @@ export function SalesClient({ products, createTransaction }: SalesClientProps) {
       return;
     }
 
-    const total = getCartTotal();
+    const total = getFinalTotal();
 
     startTransition(async () => {
       const result = await createTransaction(cartItems, total);

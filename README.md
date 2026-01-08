@@ -23,7 +23,8 @@ Aplikasi berbasis web untuk manajemen toko parfum isi ulang. Fokus utama adalah 
 2. Install dependencies: `npm install`
 3. Buat file `.env.local` berdasarkan `.env.example`
 4. Setup database Supabase sesuai skema di `database.sql`
-5. Jalankan aplikasi: `npm run dev`
+5. Verifikasi environment variables: `npm run check-env`
+6. Jalankan aplikasi: `npm run dev`
 
 ## Konfigurasi Supabase
 
@@ -32,7 +33,6 @@ Aplikasi berbasis web untuk manajemen toko parfum isi ulang. Fokus utama adalah 
 3. Tambahkan environment variables di `.env.local`:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
 ## Struktur Database
 
@@ -47,6 +47,31 @@ Aplikasi berbasis web untuk manajemen toko parfum isi ulang. Fokus utama adalah 
 - Otomatisasi pengurangan stok setelah transaksi
 - Sistem keranjang belanja dengan validasi stok
 - Laporan laba berdasarkan perbedaan harga jual dan modal
+
+## 🚨 Troubleshooting
+
+### Login/Signup Tidak Berfungsi Setelah Deployment?
+
+Jika fitur login dan signup tidak berfungsi setelah deployment, kemungkinan besar environment variables belum dikonfigurasi di platform hosting Anda.
+
+**Solusi Cepat:** Lihat panduan lengkap di [FIX_LOGIN_SIGNUP.md](./FIX_LOGIN_SIGNUP.md)
+
+**Checklist:**
+- ✅ Environment variables sudah ditambahkan di platform hosting (Vercel/Netlify/Railway)
+- ✅ Nama variabel **PERSIS**: `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- ✅ Sudah redeploy aplikasi setelah menambahkan env vars
+- ✅ Site URL dan Redirect URLs sudah dikonfigurasi di Supabase
+
+### Cara Cek Environment Variables Lokal
+
+Jalankan command berikut untuk memverifikasi konfigurasi:
+```bash
+npm run check-env
+```
+
+## Deployment
+
+Lihat panduan deployment lengkap di [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
 
 ## Rencana Pengembangan
 

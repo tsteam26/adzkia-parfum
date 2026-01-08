@@ -10,6 +10,7 @@ import {
   FileText,
   Sparkles,
   X,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/inventory", label: "Inventori", icon: Package },
   { href: "/dashboard/sales", label: "Kasir (POS)", icon: ShoppingCart },
+  { href: "/dashboard/customers", label: "Pelanggan", icon: Users },
   { href: "/dashboard/reports", label: "Laporan", icon: FileText },
 ];
 

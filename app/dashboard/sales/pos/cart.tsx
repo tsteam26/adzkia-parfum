@@ -13,13 +13,21 @@ interface CartProps {
 }
 
 export function Cart({ onCheckout, isPending }: CartProps) {
-  const { items, removeItem, updateItemVolume, clearCart } = useCartStore();
+  const {
+    items,
+    removeItem,
+    updateItemVolume,
+    clearCart,
+    manualTotal,
+    setManualTotal,
+    resetManualTotal,
+    getCartTotal
+  } = useCartStore();
 
   // State for manual total editing
   const [isEditingTotal, setIsEditingTotal] = useState(false);
-  const [manualTotal, setManualTotal] = useState<number | null>(null);
 
-  const calculatedTotal = items.reduce((total, item) => total + item.subtotal, 0);
+  const calculatedTotal = getCartTotal();
   const totalAmount = manualTotal !== null ? manualTotal : calculatedTotal;
 
   // Reset manual total when items change and not in edit mode
@@ -40,7 +48,7 @@ export function Cart({ onCheckout, isPending }: CartProps) {
   };
 
   const handleResetToCalculated = () => {
-    setManualTotal(null);
+    resetManualTotal();
     setIsEditingTotal(false);
   };
 

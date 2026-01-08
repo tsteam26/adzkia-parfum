@@ -10,15 +10,20 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[];
+  manualTotal: number | null;
   addItem: (product: Product) => void;
   removeItem: (productId: string) => void;
   updateItemVolume: (productId: string, volume_ml: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
+  setManualTotal: (total: number | null) => void;
+  resetManualTotal: () => void;
+  getFinalTotal: () => number;
 };
 
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
+  manualTotal: null,
   addItem: (product) =>
     set((state) => {
       const existingItem = state.items.find(
@@ -89,9 +94,15 @@ export const useCartStore = create<CartState>((set, get) => ({
         }),
       };
     }),
-  clearCart: () => set({ items: [] }),
+  clearCart: () => set({ items: [], manualTotal: null }),
   getCartTotal: () => {
     const state = get();
     return state.items.reduce((total, item) => total + item.subtotal, 0);
+  },
+  setManualTotal: (total) => set({ manualTotal: total }),
+  resetManualTotal: () => set({ manualTotal: null }),
+  getFinalTotal: () => {
+    const state = get();
+    return state.manualTotal !== null ? state.manualTotal : state.getCartTotal();
   }
 }));

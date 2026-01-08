@@ -34,6 +34,17 @@ create table transaction_items (
   subtotal numeric not null
 );
 
+-- Create Customers Table
+create table customers (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  user_id uuid references profiles(id),
+  name text not null,
+  address text,
+  total_purchases numeric default 0
+);
+
 -- (Optional) Trigger Function to deduct stock automatically when a transaction is created
 create or replace function deduct_stock()
 returns trigger as $$
@@ -54,6 +65,7 @@ alter table profiles enable row level security;
 alter table products enable row level security;
 alter table transactions enable row level security;
 alter table transaction_items enable row level security;
+alter table customers enable row level security;
 
 create policy "Users can view their own profiles"
   on profiles for select
@@ -120,6 +132,23 @@ create policy "Users can delete their own transaction items"
     where transactions.id = transaction_items.transaction_id
     and transactions.user_id = auth.uid()
   ));
+
+-- RLS policies for customers
+create policy "Users can view their own customers"
+  on customers for select
+  using (user_id = auth.uid());
+
+create policy "Users can insert their own customers"
+  on customers for insert
+  with check (user_id = auth.uid());
+
+create policy "Users can update their own customers"
+  on customers for update
+  using (user_id = auth.uid());
+
+create policy "Users can delete their own customers"
+  on customers for delete
+  using (user_id = auth.uid());
 
 -- Create a trigger to automatically create a profile when a user signs up
 create or replace function public.handle_new_user()

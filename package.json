@@ -4,7 +4,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "check-env": "node check-env.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

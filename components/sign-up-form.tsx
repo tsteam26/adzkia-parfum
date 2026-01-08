@@ -29,17 +29,23 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     if (password !== repeatPassword) {
-      setError("Passwords do not match");
+      setError("Password tidak cocok. Silakan coba lagi.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password minimal 6 karakter.");
       setIsLoading(false);
       return;
     }
 
     try {
+      const supabase = createClient();
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -50,7 +56,26 @@ export function SignUpForm({
       if (error) throw error;
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      console.error("Signup error:", error);
+
+      // Check if it's an environment variable error
+      if (error instanceof Error) {
+        if (error.message.includes("NEXT_PUBLIC_SUPABASE")) {
+          setError(
+            "Konfigurasi sistem tidak lengkap. Silakan hubungi administrator. (Environment variables tidak terkonfigurasi)"
+          );
+        } else if (error.message.includes("User already registered")) {
+          setError("Email sudah terdaftar. Silakan login atau gunakan email lain.");
+        } else if (error.message.includes("Invalid email")) {
+          setError("Format email tidak valid. Silakan coba lagi.");
+        } else if (error.message.includes("Password should be at least")) {
+          setError("Password terlalu pendek. Minimal 6 karakter.");
+        } else {
+          setError(error.message);
+        }
+      } else {
+        setError("Terjadi kesalahan. Silakan coba lagi.");
+      }
     } finally {
       setIsLoading(false);
     }
