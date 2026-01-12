@@ -108,8 +108,7 @@ export async function createTransaction(cartItems: any, total: number) {
 
     console.log("Transaction created successfully:", transaction.id);
 
-    revalidatePath("/dashboard/sales");
-    revalidatePath("/dashboard/inventory");
+    revalidatePath("/dashboard", "layout");
     return { success: true, message: "Transaksi berhasil disimpan." };
   } catch (error) {
     console.error("Transaction error:", error);
@@ -124,15 +123,13 @@ export async function deleteTransaction(id: string) {
   } = await supabase.auth.getUser();
 
   console.log("DeleteTransaction action called with id:", id);
-  console.log("User authenticated:", !!user);
 
   if (!user) {
-    console.log("Delete transaction - Authentication error: User not authenticated");
     return { success: false, message: "User not authenticated" };
   }
 
   try {
-    // Check that the transaction belongs to the current user
+    // 1. Fetch transaction first to verify ownership
     const { data: transaction, error: fetchError } = await supabase
       .from("transactions")
       .select("id, user_id")
@@ -140,16 +137,55 @@ export async function deleteTransaction(id: string) {
       .eq("user_id", user.id)
       .single();
 
-    if (fetchError) {
-      console.error("Error fetching transaction to delete:", fetchError);
+    if (fetchError || !transaction) {
       return { success: false, message: "Transaksi tidak ditemukan" };
     }
 
-    if (!transaction) {
-      return { success: false, message: "Transaksi tidak ditemukan" };
+    // 2. Fetch transaction items to restore stock
+    const { data: items, error: itemsError } = await supabase
+      .from("transaction_items")
+      .select("product_id, volume_ml")
+      .eq("transaction_id", id);
+
+    if (itemsError) {
+      console.error("Error fetching items for stock restoration:", itemsError);
+      // We continue to delete even if we can't fetch items, though this is rare.
+    } else if (items && items.length > 0) {
+      // 3. Restore stock for each product manually (safer than RPC if not exists)
+      await Promise.all(
+        items.map(async (item) => {
+          try {
+            if (!item.product_id) return;
+
+            // Fetch current stock
+            const { data: product } = await supabase
+              .from("products")
+              .select("stock_ml")
+              .eq("id", item.product_id)
+              .single();
+
+            if (product) {
+              const currentStock = Number(product.stock_ml) || 0;
+              const volumeToRestore = Number(item.volume_ml) || 0;
+              const newStock = currentStock + volumeToRestore;
+
+              // Update stock
+              await supabase
+                .from("products")
+                .update({ stock_ml: newStock })
+                .eq("id", item.product_id);
+            }
+          } catch (restoreError) {
+            console.error(
+              `Failed to restore stock for product ${item.product_id}:`,
+              restoreError
+            );
+          }
+        })
+      );
     }
 
-    // Delete the transaction (this will also delete related transaction_items due to the foreign key constraint with CASCADE)
+    // 4. Delete the transaction
     const { error: deleteError } = await supabase
       .from("transactions")
       .delete()
@@ -163,7 +199,12 @@ export async function deleteTransaction(id: string) {
 
     console.log("Transaction deleted successfully:", id);
 
+    // 5. Revalidate all relevant paths
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/sales");
+    revalidatePath("/dashboard/sales/history");
+    revalidatePath("/dashboard/inventory");
+
     return { success: true, message: "Transaksi berhasil dihapus." };
   } catch (error) {
     console.error("Delete transaction error:", error);

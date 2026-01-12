@@ -19,7 +19,7 @@ export default function SalesHistory() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("/api/transactions");
+        const response = await fetch("/api/transactions", { cache: 'no-store' });
         const data = await response.json();
         setTransactions(data);
       } catch (error) {

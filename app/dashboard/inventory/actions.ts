@@ -48,7 +48,7 @@ export async function addProduct(values: z.infer<typeof formSchema>) {
 
     console.log("Product inserted successfully");
 
-    revalidatePath("/dashboard/inventory");
+    revalidatePath("/dashboard", "layout");
     return { success: true, message: "Produk berhasil ditambahkan." };
   } catch (validationError) {
     console.error("Validation error:", validationError);
@@ -95,7 +95,7 @@ export async function updateProduct(
 
     console.log("Product updated successfully");
 
-    revalidatePath("/dashboard/inventory");
+    revalidatePath("/dashboard", "layout");
     return { success: true, message: "Produk berhasil diperbarui." };
   } catch (validationError) {
     console.error("Update validation error:", validationError);
@@ -128,7 +128,7 @@ export async function deleteProduct(id: string) {
 
   console.log("Product deleted successfully");
 
-  revalidatePath("/dashboard/inventory");
+  revalidatePath("/dashboard", "layout");
   return { success: true, message: "Produk berhasil dihapus." };
 }
 
